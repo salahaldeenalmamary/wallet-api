@@ -29,8 +29,14 @@ public class Wallet
     /// </summary>
     public decimal Balance { get; set; } = 0;
 
-    /// <summary>Number of decimal places. Default: 2</summary>
+    /// <summary>Number of decimal places. Derived from the linked Currency.</summary>
     public int DecimalPlaces { get; set; } = 2;
+
+    /// <summary>ISO 4217 currency code, e.g. "USD". FK → currencies.code</summary>
+    public string Currency { get; set; } = "USD";
+
+    // Navigation
+    public Currency CurrencyInfo { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

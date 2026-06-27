@@ -8,6 +8,6 @@ public record CreateWalletRequest(
     [Required] string Name,
     string? Slug = null,
     string? Description = null,
-    int DecimalPlaces = 2,
+    string Currency = "USD",
     Dictionary<string, object>? Meta = null
 );

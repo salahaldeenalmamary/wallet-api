@@ -9,10 +9,59 @@ public class WalletDbContext(DbContextOptions<WalletDbContext> options) : DbCont
     public DbSet<Wallet> Wallets => Set<Wallet>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Transfer> Transfers => Set<Transfer>();
+    public DbSet<Currency> Currencies => Set<Currency>();
+    public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // ── Currency ──────────────────────────────────────────────────────
+        modelBuilder.Entity<Currency>(e =>
+        {
+            e.HasKey(c => c.Code);
+            e.Property(c => c.Code).HasMaxLength(3).IsRequired();
+            e.Property(c => c.Name).HasMaxLength(100).IsRequired();
+            e.Property(c => c.Symbol).HasMaxLength(10).IsRequired();
+            e.Property(c => c.DecimalPlaces).HasDefaultValue(2);
+            e.Property(c => c.IsActive).HasDefaultValue(true);
+            e.Property(c => c.CreatedAt).HasDefaultValueSql("NOW()");
+            e.Property(c => c.UpdatedAt).HasDefaultValueSql("NOW()");
+
+            // Seed common currencies
+            e.HasData(
+                new Currency { Code = "USD", Name = "US Dollar",          Symbol = "$",  DecimalPlaces = 2 },
+                new Currency { Code = "EUR", Name = "Euro",               Symbol = "€",  DecimalPlaces = 2 },
+                new Currency { Code = "GBP", Name = "British Pound",      Symbol = "£",  DecimalPlaces = 2 },
+                new Currency { Code = "SAR", Name = "Saudi Riyal",        Symbol = "﷼",  DecimalPlaces = 2 },
+                new Currency { Code = "AED", Name = "UAE Dirham",         Symbol = "د.إ", DecimalPlaces = 2 },
+                new Currency { Code = "JPY", Name = "Japanese Yen",       Symbol = "¥",  DecimalPlaces = 0 },
+                new Currency { Code = "BTC", Name = "Bitcoin",            Symbol = "₿",  DecimalPlaces = 8 }
+            );
+        });
+
+        // ── ExchangeRate ───────────────────────────────────────────────────
+        modelBuilder.Entity<ExchangeRate>(e =>
+        {
+            e.HasKey(r => r.Id);
+            e.Property(r => r.FromCurrency).HasMaxLength(3).IsRequired();
+            e.Property(r => r.ToCurrency).HasMaxLength(3).IsRequired();
+            e.Property(r => r.Rate).HasColumnType("numeric(28,10)").IsRequired();
+            e.Property(r => r.CreatedAt).HasDefaultValueSql("NOW()");
+
+            e.HasIndex(r => new { r.FromCurrency, r.ToCurrency });
+            e.HasIndex(r => new { r.FromCurrency, r.ToCurrency, r.CreatedAt });
+
+            e.HasOne(r => r.From)
+             .WithMany(c => c.FromRates)
+             .HasForeignKey(r => r.FromCurrency)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(r => r.To)
+             .WithMany(c => c.ToRates)
+             .HasForeignKey(r => r.ToCurrency)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
 
         // ── Wallet ───────────────────────────────────────────────────────
         modelBuilder.Entity<Wallet>(e =>
@@ -33,12 +82,19 @@ public class WalletDbContext(DbContextOptions<WalletDbContext> options) : DbCont
             e.Property(w => w.Meta).HasColumnType("jsonb");
             e.Property(w => w.Balance).HasColumnType("numeric(28,0)").HasDefaultValue(0m);
             e.Property(w => w.DecimalPlaces).HasDefaultValue(2);
+            e.Property(w => w.Currency).HasMaxLength(3).HasDefaultValue("USD").IsRequired();
 
             e.Property(w => w.CreatedAt).HasDefaultValueSql("NOW()");
             e.Property(w => w.UpdatedAt).HasDefaultValueSql("NOW()");
 
             // Soft delete filter
             e.HasQueryFilter(w => w.DeletedAt == null);
+
+            // FK → currencies
+            e.HasOne(w => w.CurrencyInfo)
+             .WithMany(c => c.Wallets)
+             .HasForeignKey(w => w.Currency)
+             .OnDelete(DeleteBehavior.Restrict);
 
             // Relations
             e.HasMany(w => w.Transactions)

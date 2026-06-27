@@ -11,6 +11,15 @@ public class WalletService(WalletDbContext db) : IWalletService
 {
     public async Task<WalletResponse> CreateWalletAsync(CreateWalletRequest request, CancellationToken ct = default)
     {
+        var currencyCode = request.Currency.ToUpperInvariant();
+
+        // Auto-derive DecimalPlaces from the currency definition
+        var currency = await db.Currencies.FindAsync([currencyCode], ct)
+            ?? throw new KeyNotFoundException($"Currency '{currencyCode}' not found. Create it first via POST /currencies.");
+
+        if (!currency.IsActive)
+            throw new InvalidOperationException($"Currency '{currencyCode}' is inactive.");
+
         var slug = request.Slug ?? SlugFrom(request.Name);
 
         var wallet = new Wallet
@@ -20,7 +29,8 @@ public class WalletService(WalletDbContext db) : IWalletService
             Name = request.Name,
             Slug = slug,
             Description = request.Description,
-            DecimalPlaces = request.DecimalPlaces,
+            Currency = currencyCode,
+            DecimalPlaces = currency.DecimalPlaces,
             Balance = 0,
             Meta = request.Meta is not null
                 ? JsonDocument.Parse(JsonSerializer.Serialize(request.Meta))
@@ -117,6 +127,7 @@ public class WalletService(WalletDbContext db) : IWalletService
     internal static WalletResponse ToResponse(Wallet w) => new(
         w.Id, w.Uuid, w.HolderType, w.HolderId,
         w.Name, w.Slug, w.Description,
+        w.Currency,
         w.Balance,
         BalanceFloat(w.Balance, w.DecimalPlaces),
         w.DecimalPlaces,

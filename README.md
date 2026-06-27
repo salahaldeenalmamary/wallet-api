@@ -88,7 +88,7 @@ dotnet-wallet/
 
 ## Decimal Precision
 
-Amounts are stored as **integer-shifted integers** (same as the Laravel version):
+Amounts are stored as **integer-shifted integers** :
 - `DecimalPlaces = 2` means $10.50 → stored as `1050`
 - The API response always includes both `balance` (raw integer) and `balanceFloat` (human-readable decimal)
 

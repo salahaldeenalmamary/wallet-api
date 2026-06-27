@@ -8,6 +8,7 @@ public record WalletResponse(
     string Name,
     string Slug,
     string? Description,
+    string Currency,
     decimal Balance,
     decimal BalanceFloat,
     int DecimalPlaces,

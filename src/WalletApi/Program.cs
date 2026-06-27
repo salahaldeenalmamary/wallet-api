@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(opts =>
     {
         Title = "Wallet API",
         Version = "v1",
-        Description = "ASP.NET Core + PostgreSQL " +
+        Description = "ASP.NET Core + PostgreSQL  " +
                       "multi-wallet system with deposits, withdrawals, and transfers."
     });
     // Include XML comments for Swagger
@@ -36,6 +36,8 @@ builder.Services.AddDbContext<WalletDbContext>(options =>
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransferService, TransferService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IExchangeRateService, ExchangeRateService>();
 
 // ── App Pipeline ──────────────────────────────────────────────────────────────
 var app = builder.Build();
