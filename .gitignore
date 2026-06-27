@@ -1,0 +1,36 @@
+## Build output
+bin/
+obj/
+
+## NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+
+## User-specific VS / Rider files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.idea/
+*.DotSettings.user
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## dotnet secrets
+secrets.json
+
+## Logs
+*.log
+logs/
+
+## Published output
+publish/
+out/
+
+## Entity Framework Migrations are tracked separately — see "Add initial EF Core migration" commit
+## Uncomment the line below to always ignore migrations:
+# src/*/Data/Migrations/
