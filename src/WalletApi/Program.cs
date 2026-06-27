@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WalletApi.Data;
 using WalletApi.Middleware;
 using WalletApi.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,7 @@ builder.Services.AddSwaggerGen(opts =>
     {
         Title = "Wallet API",
         Version = "v1",
-        Description = "ASP.NET Core + PostgreSQL port of bavix/laravel-wallet — " +
+        Description = "ASP.NET Core + PostgreSQL " +
                       "multi-wallet system with deposits, withdrawals, and transfers."
     });
     // Include XML comments for Swagger
