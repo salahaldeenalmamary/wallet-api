@@ -1,10 +1,11 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using WalletApi.Data.Migrations;
 
 #nullable disable
 
-namespace WalletApi.Migrations
+namespace WalletApi.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddUsersAndFixSeedDates : Migration

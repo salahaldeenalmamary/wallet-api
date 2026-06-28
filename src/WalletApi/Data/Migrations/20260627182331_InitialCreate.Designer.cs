@@ -7,10 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WalletApi.Data;
+using WalletApi.Data.Migrations;
 
 #nullable disable
 
-namespace WalletApi.Migrations
+namespace WalletApi.Data.Migrations
 {
     [DbContext(typeof(WalletDbContext))]
     [Migration("20260627182331_InitialCreate")]

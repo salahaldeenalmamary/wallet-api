@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using WalletApi.Data;
@@ -9,8 +10,13 @@ namespace WalletApi.Services;
 
 public class WalletService(WalletDbContext db) : IWalletService
 {
-    public async Task<WalletResponse> CreateWalletAsync(CreateWalletRequest request, CancellationToken ct = default)
+    public async Task<WalletResponse> CreateWalletAsync(ClaimsPrincipal user, CreateWalletRequest request, CancellationToken ct = default)
     {
+        var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+            ?? throw new UnauthorizedAccessException("User ID not found in token claims.");
+        var holderId = long.Parse(userIdStr);
+        var holderType = "AppUser";
+
         var currencyCode = request.Currency.ToUpperInvariant();
 
         // Auto-derive DecimalPlaces from the currency definition
@@ -24,8 +30,8 @@ public class WalletService(WalletDbContext db) : IWalletService
 
         var wallet = new Wallet
         {
-            HolderType = request.HolderType,
-            HolderId = request.HolderId,
+            HolderType = holderType,
+            HolderId = holderId,
             Name = request.Name,
             Slug = slug,
             Description = request.Description,

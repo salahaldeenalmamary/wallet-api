@@ -11,16 +11,10 @@ using WalletApi.Entities;
 
 namespace WalletApi.Services;
 
-public class AuthService : IAuthService
+public class AuthService(WalletDbContext db, IConfiguration configuration) : IAuthService
 {
-    private readonly WalletDbContext _db;
-    private readonly IConfiguration _configuration;
-
-    public AuthService(WalletDbContext db, IConfiguration configuration)
-    {
-        _db = db;
-        _configuration = configuration;
-    }
+    private readonly WalletDbContext _db = db;
+    private readonly IConfiguration _configuration = configuration;
 
     // ── Constants ────────────────────────────────────────────────────────────────
     private const int Pbkdf2Iterations = 350_000;
@@ -43,6 +37,17 @@ public class AuthService : IAuthService
             PasswordHash = HashPassword(request.Password),
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
+            Wallets =
+            [
+                new Wallet
+                {
+                    HolderType = "AppUser",
+                    Name = "Default",
+                    Slug = "default",
+                    Currency = "USD",
+                    DecimalPlaces = 2
+                }
+            ]
         };
 
         _db.Users.Add(user);

@@ -7,14 +7,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WalletApi.Data;
+using WalletApi.Data.Migrations;
 
 #nullable disable
 
-namespace WalletApi.Migrations
+namespace WalletApi.Data.Migrations
 {
     [DbContext(typeof(WalletDbContext))]
-    [Migration("20260627203817_AddMultiCurrency")]
-    partial class AddMultiCurrency
+    [Migration("20260627232632_AddUsersAndFixSeedDates")]
+    partial class AddUsersAndFixSeedDates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +26,51 @@ namespace WalletApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("WalletApi.Entities.AppUser", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
 
             modelBuilder.Entity("WalletApi.Entities.Currency", b =>
                 {
@@ -70,72 +116,72 @@ namespace WalletApi.Migrations
                         new
                         {
                             Code = "USD",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(3560),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 2,
                             IsActive = true,
                             Name = "US Dollar",
                             Symbol = "$",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(3560)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "EUR",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4400),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 2,
                             IsActive = true,
                             Name = "Euro",
                             Symbol = "€",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "GBP",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 2,
                             IsActive = true,
                             Name = "British Pound",
                             Symbol = "£",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "SAR",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 2,
                             IsActive = true,
                             Name = "Saudi Riyal",
                             Symbol = "﷼",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "AED",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 2,
                             IsActive = true,
                             Name = "UAE Dirham",
                             Symbol = "د.إ",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "JPY",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 0,
                             IsActive = true,
                             Name = "Japanese Yen",
                             Symbol = "¥",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             Code = "BTC",
-                            CreatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4410),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DecimalPlaces = 8,
                             IsActive = true,
                             Name = "Bitcoin",
                             Symbol = "₿",
-                            UpdatedAt = new DateTime(2026, 6, 27, 20, 38, 17, 405, DateTimeKind.Utc).AddTicks(4420)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 
@@ -174,6 +220,47 @@ namespace WalletApi.Migrations
                     b.HasIndex("FromCurrency", "ToCurrency", "CreatedAt");
 
                     b.ToTable("ExchangeRates");
+                });
+
+            modelBuilder.Entity("WalletApi.Entities.RefreshToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReplacedByTokenHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("WalletApi.Entities.Transaction", b =>
@@ -420,6 +507,17 @@ namespace WalletApi.Migrations
                     b.Navigation("To");
                 });
 
+            modelBuilder.Entity("WalletApi.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("WalletApi.Entities.AppUser", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WalletApi.Entities.Transaction", b =>
                 {
                     b.HasOne("WalletApi.Entities.Wallet", "Wallet")
@@ -475,6 +573,11 @@ namespace WalletApi.Migrations
                         .IsRequired();
 
                     b.Navigation("CurrencyInfo");
+                });
+
+            modelBuilder.Entity("WalletApi.Entities.AppUser", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("WalletApi.Entities.Currency", b =>

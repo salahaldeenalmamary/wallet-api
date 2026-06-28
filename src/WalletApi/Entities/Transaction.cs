@@ -15,6 +15,8 @@ public class Transaction
     public string PayableType { get; set; } = string.Empty;
     public long PayableId { get; set; }
 
+    public AppUser? User { get; set; }
+
     public TransactionType Type { get; set; }
 
     /// <summary>

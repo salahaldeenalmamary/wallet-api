@@ -17,4 +17,6 @@ public class AppUser
 
     // Navigation
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public ICollection<Wallet> Wallets { get; set; } = [];
+    public ICollection<Transaction> Transactions { get; set; } = [];
 }

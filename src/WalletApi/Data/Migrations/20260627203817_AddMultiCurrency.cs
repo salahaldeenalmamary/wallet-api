@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using WalletApi.Data.Migrations;
 
 #nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace WalletApi.Migrations
+namespace WalletApi.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddMultiCurrency : Migration

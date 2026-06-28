@@ -9,7 +9,7 @@ using WalletApi.Data;
 
 #nullable disable
 
-namespace WalletApi.Migrations
+namespace WalletApi.Data.Migrations
 {
     [DbContext(typeof(WalletDbContext))]
     partial class WalletDbContextModelSnapshot : ModelSnapshot
@@ -309,6 +309,8 @@ namespace WalletApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PayableId");
+
                     b.HasIndex("Type");
 
                     b.HasIndex("Uuid")
@@ -473,6 +475,8 @@ namespace WalletApi.Migrations
 
                     b.HasIndex("Currency");
 
+                    b.HasIndex("HolderId");
+
                     b.HasIndex("Slug");
 
                     b.HasIndex("Uuid")
@@ -516,11 +520,19 @@ namespace WalletApi.Migrations
 
             modelBuilder.Entity("WalletApi.Entities.Transaction", b =>
                 {
+                    b.HasOne("WalletApi.Entities.AppUser", "User")
+                        .WithMany("Transactions")
+                        .HasForeignKey("PayableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WalletApi.Entities.Wallet", "Wallet")
                         .WithMany("Transactions")
                         .HasForeignKey("WalletId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
 
                     b.Navigation("Wallet");
                 });
@@ -568,12 +580,24 @@ namespace WalletApi.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WalletApi.Entities.AppUser", "User")
+                        .WithMany("Wallets")
+                        .HasForeignKey("HolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CurrencyInfo");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WalletApi.Entities.AppUser", b =>
                 {
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("Transactions");
+
+                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("WalletApi.Entities.Currency", b =>

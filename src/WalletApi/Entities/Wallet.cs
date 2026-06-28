@@ -13,6 +13,8 @@ public class Wallet
     /// <summary>Polymorphic owner id</summary>
     public long HolderId { get; set; }
 
+    public AppUser? User { get; set; }
+
     public string Name { get; set; } = string.Empty;
 
     /// <summary>URL-friendly identifier for this wallet within a holder, e.g. "default"</summary>

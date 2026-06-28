@@ -29,6 +29,16 @@ public class WalletDbContext(DbContextOptions<WalletDbContext> options) : DbCont
             e.Property(u => u.LastName).HasMaxLength(100).IsRequired();
             e.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
             e.Property(u => u.UpdatedAt).HasDefaultValueSql("NOW()");
+
+            e.HasMany(u => u.Wallets)
+             .WithOne(w => w.User)
+             .HasForeignKey(w => w.HolderId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasMany(u => u.Transactions)
+             .WithOne(t => t.User)
+             .HasForeignKey(t => t.PayableId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── RefreshToken ──────────────────────────────────────────────────

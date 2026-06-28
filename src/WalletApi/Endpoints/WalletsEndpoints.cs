@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WalletApi.DTOs.Requests;
 using WalletApi.Services;
 
@@ -17,9 +18,10 @@ public static class WalletsEndpoints
         group.MapPost("/", async (
             [FromBody] CreateWalletRequest request,
             [FromServices] IWalletService walletSvc,
+            ClaimsPrincipal user,
             CancellationToken ct) =>
         {
-            var wallet = await walletSvc.CreateWalletAsync(request, ct);
+            var wallet = await walletSvc.CreateWalletAsync(user, request, ct);
             return Results.CreatedAtRoute("GetWallet", new { id = wallet.Id }, wallet);
         })
         .WithSummary("Create a new wallet for a holder.")
