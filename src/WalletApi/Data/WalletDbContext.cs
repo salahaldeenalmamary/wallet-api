@@ -6,15 +6,46 @@ namespace WalletApi.Data;
 
 public class WalletDbContext(DbContextOptions<WalletDbContext> options) : DbContext(options)
 {
-    public DbSet<Wallet> Wallets => Set<Wallet>();
-    public DbSet<Transaction> Transactions => Set<Transaction>();
-    public DbSet<Transfer> Transfers => Set<Transfer>();
-    public DbSet<Currency> Currencies => Set<Currency>();
+    public DbSet<AppUser>      Users         => Set<AppUser>();
+    public DbSet<Wallet>       Wallets       => Set<Wallet>();
+    public DbSet<Transaction>  Transactions  => Set<Transaction>();
+    public DbSet<Transfer>     Transfers     => Set<Transfer>();
+    public DbSet<Currency>     Currencies    => Set<Currency>();
     public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // ── AppUser ───────────────────────────────────────────────────────────
+        modelBuilder.Entity<AppUser>(e =>
+        {
+            e.HasKey(u => u.Id);
+            e.Property(u => u.Email).HasMaxLength(256).IsRequired();
+            e.HasIndex(u => u.Email).IsUnique();
+            e.Property(u => u.PasswordHash).IsRequired();
+            e.Property(u => u.FirstName).HasMaxLength(100).IsRequired();
+            e.Property(u => u.LastName).HasMaxLength(100).IsRequired();
+            e.Property(u => u.CreatedAt).HasDefaultValueSql("NOW()");
+            e.Property(u => u.UpdatedAt).HasDefaultValueSql("NOW()");
+        });
+
+        // ── RefreshToken ──────────────────────────────────────────────────
+        modelBuilder.Entity<RefreshToken>(e =>
+        {
+            e.HasKey(rt => rt.Id);
+            e.Property(rt => rt.TokenHash).HasMaxLength(128).IsRequired();
+            e.HasIndex(rt => rt.TokenHash).IsUnique();
+            e.Property(rt => rt.ExpiresAt).IsRequired();
+            e.Property(rt => rt.CreatedAt).HasDefaultValueSql("NOW()");
+            e.Property(rt => rt.ReplacedByTokenHash).HasMaxLength(128);
+
+            e.HasOne(rt => rt.User)
+             .WithMany(u => u.RefreshTokens)
+             .HasForeignKey(rt => rt.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // ── Currency ──────────────────────────────────────────────────────
         modelBuilder.Entity<Currency>(e =>
@@ -29,14 +60,15 @@ public class WalletDbContext(DbContextOptions<WalletDbContext> options) : DbCont
             e.Property(c => c.UpdatedAt).HasDefaultValueSql("NOW()");
 
             // Seed common currencies
+            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             e.HasData(
-                new Currency { Code = "USD", Name = "US Dollar",          Symbol = "$",  DecimalPlaces = 2 },
-                new Currency { Code = "EUR", Name = "Euro",               Symbol = "€",  DecimalPlaces = 2 },
-                new Currency { Code = "GBP", Name = "British Pound",      Symbol = "£",  DecimalPlaces = 2 },
-                new Currency { Code = "SAR", Name = "Saudi Riyal",        Symbol = "﷼",  DecimalPlaces = 2 },
-                new Currency { Code = "AED", Name = "UAE Dirham",         Symbol = "د.إ", DecimalPlaces = 2 },
-                new Currency { Code = "JPY", Name = "Japanese Yen",       Symbol = "¥",  DecimalPlaces = 0 },
-                new Currency { Code = "BTC", Name = "Bitcoin",            Symbol = "₿",  DecimalPlaces = 8 }
+                new Currency { Code = "USD", Name = "US Dollar",          Symbol = "$",  DecimalPlaces = 2, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "EUR", Name = "Euro",               Symbol = "€",  DecimalPlaces = 2, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "GBP", Name = "British Pound",      Symbol = "£",  DecimalPlaces = 2, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "SAR", Name = "Saudi Riyal",        Symbol = "﷼",  DecimalPlaces = 2, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "AED", Name = "UAE Dirham",         Symbol = "د.إ", DecimalPlaces = 2, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "JPY", Name = "Japanese Yen",       Symbol = "¥",  DecimalPlaces = 0, CreatedAt = seedDate, UpdatedAt = seedDate },
+                new Currency { Code = "BTC", Name = "Bitcoin",            Symbol = "₿",  DecimalPlaces = 8, CreatedAt = seedDate, UpdatedAt = seedDate }
             );
         });
 
