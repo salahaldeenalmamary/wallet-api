@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WalletApi.DTOs.Requests;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -9,7 +10,7 @@ public static class WalletsEndpoints
 {
     public static void MapWalletsEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/wallets")
+        var group = app.MapGroup("/wallets")
                        .WithTags("Wallets")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -22,7 +23,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var wallet = await walletSvc.CreateWalletAsync(user, request, ct);
-            return Results.CreatedAtRoute("GetWallet", new { id = wallet.Id }, wallet);
+            return ApiResults.Created($"/wallets/{wallet.Id}", wallet, "Wallet created successfully.");
         })
         .WithSummary("Create a new wallet for a holder.")
         .Produces(StatusCodes.Status201Created)
@@ -35,7 +36,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var wallet = await walletSvc.GetWalletAsync(id, ct);
-            return Results.Ok(wallet);
+            return ApiResults.Ok(wallet, "Wallet retrieved successfully.");
         })
         .WithName("GetWallet")
         .WithSummary("Get a wallet by ID.")
@@ -51,7 +52,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var result = await walletSvc.GetTransactionsAsync(id, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize, ct);
-            return Results.Ok(result);
+            return ApiResults.Ok(result, "Transactions retrieved successfully.");
         })
         .WithSummary("List transactions for a wallet (paged).")
         .Produces(StatusCodes.Status200OK);
@@ -65,7 +66,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var result = await walletSvc.GetTransfersAsync(id, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize, ct);
-            return Results.Ok(result);
+            return ApiResults.Ok(result, "Transfers retrieved successfully.");
         })
         .WithSummary("List transfers for a wallet (paged).")
         .Produces(StatusCodes.Status200OK);
@@ -78,7 +79,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.DepositAsync(id, request, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Deposit successful.");
         })
         .WithSummary("Deposit funds into a wallet.")
         .Produces(StatusCodes.Status200OK)
@@ -93,7 +94,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.WithdrawAsync(id, request, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Withdraw successful.");
         })
         .WithSummary("Withdraw funds from a wallet (fails if insufficient balance).")
         .Produces(StatusCodes.Status200OK)
@@ -108,7 +109,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.ForceWithdrawAsync(id, request, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Force withdraw successful.");
         })
         .WithSummary("Force-withdraw funds (ignores balance check — balance can go negative).")
         .Produces(StatusCodes.Status200OK)
@@ -123,7 +124,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var result = await txSvc.CanWithdrawAsync(id, amount, allowZero, ct);
-            return Results.Ok(new { canWithdraw = result });
+            return ApiResults.Ok(new { canWithdraw = result }, "Withdrawability status checked.");
         })
         .WithSummary("Check whether a wallet can withdraw a given amount.")
         .Produces(StatusCodes.Status200OK);
@@ -135,7 +136,7 @@ public static class WalletsEndpoints
             CancellationToken ct) =>
         {
             var wallet = await walletSvc.RefreshBalanceAsync(id, ct);
-            return Results.Ok(wallet);
+            return ApiResults.Ok(wallet, "Balance refreshed successfully.");
         })
         .WithSummary("Recompute and sync the wallet balance from confirmed transactions.")
         .Produces(StatusCodes.Status200OK)

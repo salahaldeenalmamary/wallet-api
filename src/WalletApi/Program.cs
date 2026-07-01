@@ -39,7 +39,7 @@ builder.Services.AddSwaggerGen(opts =>
     opts.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecuritySchemeReference("Bearer"),
+            new OpenApiSecuritySchemeReference("Bearer", document),
             new List<string>()
         }
     });
@@ -130,12 +130,15 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");  // CORS should come before Authentication
 app.UseAuthentication();  // 1. Authentication
 app.UseAuthorization();   // 2. Authorization
+
 // 3. Minimal API Endpoints
-app.MapAuthEndpoints();
-app.MapExchangeRatesEndpoints();
-app.MapTransactionsEndpoints();
-app.MapTransfersEndpoints();
-app.MapWalletsEndpoints();
-app.MapCurrenciesEndpoints();
+var apiGroup = app.MapGroup("/api");
+
+apiGroup.MapAuthEndpoints();
+apiGroup.MapExchangeRatesEndpoints();
+apiGroup.MapTransactionsEndpoints();
+apiGroup.MapTransfersEndpoints();
+apiGroup.MapWalletsEndpoints();
+apiGroup.MapCurrenciesEndpoints();
 
 app.Run();

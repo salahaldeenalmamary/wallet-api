@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletApi.DTOs.Requests;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -8,7 +9,7 @@ public static class CurrenciesEndpoints
 {
     public static void MapCurrenciesEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/currencies")
+        var group = app.MapGroup("/currencies")
                        .WithTags("Currencies")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -19,7 +20,7 @@ public static class CurrenciesEndpoints
             CancellationToken ct) =>
         {
             var response = await currencyService.CreateAsync(request, ct);
-            return Results.CreatedAtRoute("GetCurrency", new { code = response.Code }, response);
+            return ApiResults.Created($"/currencies/{response.Code}", response, "Currency created successfully.");
         })
         .WithSummary("Create a new currency.")
         .Produces(StatusCodes.Status201Created)
@@ -31,7 +32,7 @@ public static class CurrenciesEndpoints
             CancellationToken ct) =>
         {
             var currencies = await currencyService.ListAsync(ct);
-            return Results.Ok(currencies);
+            return ApiResults.Ok(currencies, "Currencies retrieved successfully.");
         })
         .WithSummary("List all active currencies.")
         .Produces(StatusCodes.Status200OK);
@@ -42,7 +43,7 @@ public static class CurrenciesEndpoints
             CancellationToken ct) =>
         {
             var currency = await currencyService.GetAsync(code, ct);
-            return Results.Ok(currency);
+            return ApiResults.Ok(currency, "Currency retrieved successfully.");
         })
         .WithName("GetCurrency")
         .WithSummary("Get a specific currency by ISO code.")

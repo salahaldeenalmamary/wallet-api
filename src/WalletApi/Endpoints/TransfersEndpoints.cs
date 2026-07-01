@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletApi.DTOs.Requests;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -8,7 +9,7 @@ public static class TransfersEndpoints
 {
     public static void MapTransfersEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/transfers")
+        var group = app.MapGroup("/transfers")
                        .WithTags("Transfers")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -20,7 +21,7 @@ public static class TransfersEndpoints
             CancellationToken ct) =>
         {
             var transfer = await transferSvc.TransferAsync(request, ct);
-            return Results.Ok(transfer);
+            return ApiResults.Ok(transfer, "Transfer completed successfully.");
         })
         .WithSummary("Transfer funds between two wallets (fails on insufficient balance).")
         .Produces(StatusCodes.Status200OK)
@@ -34,7 +35,7 @@ public static class TransfersEndpoints
             CancellationToken ct) =>
         {
             var transfer = await transferSvc.ForceTransferAsync(request, ct);
-            return Results.Ok(transfer);
+            return ApiResults.Ok(transfer, "Force transfer completed successfully.");
         })
         .WithSummary("Force-transfer funds (ignores balance check).")
         .Produces(StatusCodes.Status200OK)
@@ -47,7 +48,7 @@ public static class TransfersEndpoints
             CancellationToken ct) =>
         {
             var transfer = await transferSvc.SafeTransferAsync(request, ct);
-            return transfer is null ? Results.NoContent() : Results.Ok(transfer);
+            return transfer is null ? ApiResults.NoContent("Transfer skipped due to insufficient funds.") : ApiResults.Ok(transfer, "Safe transfer completed successfully.");
         })
         .WithSummary("Safe transfer — returns 204 on insufficient funds instead of throwing.")
         .Produces(StatusCodes.Status200OK)
@@ -60,7 +61,7 @@ public static class TransfersEndpoints
             CancellationToken ct) =>
         {
             var transfer = await transferSvc.GetByUuidAsync(uuid, ct);
-            return Results.Ok(transfer);
+            return ApiResults.Ok(transfer, "Transfer retrieved successfully.");
         })
         .WithSummary("Get a transfer by UUID.")
         .Produces(StatusCodes.Status200OK)

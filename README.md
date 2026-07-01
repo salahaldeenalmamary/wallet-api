@@ -32,11 +32,21 @@ A full-featured digital wallet REST API.
 ### Prerequisites
 
 - .NET 10 SDK
-- PostgreSQL 14+
+- Docker & Docker Compose (or PostgreSQL 14+ installed locally)
 
-### 1. Configure the connection string
+### 1. Start the Database (Docker)
 
-Edit `src/WalletApi/appsettings.json`:
+To spin up the PostgreSQL database (`wallet_db`) automatically inside Docker:
+
+```bash
+docker compose up -d
+```
+
+This starts the base container and maps it to port `5432` matching the connection string.
+
+### 2. Configure the connection string (optional)
+
+If running a local PostgreSQL instance outside Docker, configure `src/WalletApi/appsettings.json`:
 
 ```json
 {

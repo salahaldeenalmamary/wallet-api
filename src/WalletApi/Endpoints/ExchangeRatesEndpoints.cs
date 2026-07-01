@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletApi.DTOs.Requests;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -8,7 +9,7 @@ public static class ExchangeRatesEndpoints
 {
     public static void MapExchangeRatesEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/rates")
+        var group = app.MapGroup("/rates")
                        .WithTags("Rates")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -20,9 +21,7 @@ public static class ExchangeRatesEndpoints
             CancellationToken ct) =>
         {
             var response = await exchangeRateService.SetRateAsync(request, ct);
-            return Results.CreatedAtRoute("GetExchangeRate",
-                new { from = response.FromCurrency, to = response.ToCurrency },
-                response);
+            return ApiResults.Created($"/rates/{response.FromCurrency}/{response.ToCurrency}", response, "Exchange rate set successfully.");
         })
         .WithSummary("Set (or update) the exchange rate for a currency pair.")
         .Produces(StatusCodes.Status201Created)
@@ -35,7 +34,7 @@ public static class ExchangeRatesEndpoints
             CancellationToken ct) =>
         {
             var rates = await exchangeRateService.ListAsync(ct);
-            return Results.Ok(rates);
+            return ApiResults.Ok(rates, "Exchange rates retrieved successfully.");
         })
         .WithSummary("List the latest exchange rate for each currency pair.")
         .Produces(StatusCodes.Status200OK);
@@ -48,7 +47,7 @@ public static class ExchangeRatesEndpoints
             CancellationToken ct) =>
         {
             var rate = await exchangeRateService.GetRateAsync(from, to, ct);
-            return Results.Ok(rate);
+            return ApiResults.Ok(rate, "Exchange rate retrieved successfully.");
         })
         .WithName("GetExchangeRate")
         .WithSummary("Get the latest exchange rate for a specific currency pair.")

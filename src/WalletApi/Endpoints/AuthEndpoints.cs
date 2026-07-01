@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using WalletApi.DTOs.Auth;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -9,7 +10,7 @@ public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth")
+        var group = app.MapGroup("/auth")
                        .WithTags("Auth")
                        .WithOpenApi();
 
@@ -19,15 +20,8 @@ public static class AuthEndpoints
             [FromServices] IAuthService authService,
             CancellationToken ct) =>
         {
-            try
-            {
-                var response = await authService.RegisterAsync(request);
-                return Results.Created((string?)null, response);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.BadRequest(new { message = ex.Message });
-            }
+            var response = await authService.RegisterAsync(request);
+            return ApiResults.Created((string?)null, response, "User registered successfully.");
         })
         .WithSummary("Register a new user account.")
         .Produces<AuthResponse>(StatusCodes.Status201Created)
@@ -40,15 +34,8 @@ public static class AuthEndpoints
             [FromServices] IAuthService authService,
             CancellationToken ct) =>
         {
-            try
-            {
-                var response = await authService.LoginAsync(request);
-                return Results.Ok(response);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Results.Unauthorized();
-            }
+            var response = await authService.LoginAsync(request);
+            return ApiResults.Ok(response, "Login successful.");
         })
         .WithSummary("Login with email and password to obtain tokens.")
         .Produces<AuthResponse>(StatusCodes.Status200OK)
@@ -61,15 +48,8 @@ public static class AuthEndpoints
             [FromServices] IAuthService authService,
             CancellationToken ct) =>
         {
-            try
-            {
-                var response = await authService.RefreshAsync(request.RefreshToken);
-                return Results.Ok(response);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Results.Unauthorized();
-            }
+            var response = await authService.RefreshAsync(request.RefreshToken);
+            return ApiResults.Ok(response, "Token refreshed successfully.");
         })
         .WithSummary("Exchange a valid refresh token for a new access + refresh token pair.")
         .Produces<AuthResponse>(StatusCodes.Status200OK)
@@ -87,15 +67,8 @@ public static class AuthEndpoints
             if (!long.TryParse(userIdClaim, out var userId))
                 return Results.Unauthorized();
 
-            try
-            {
-                await authService.RevokeAsync(request.RefreshToken, userId);
-                return Results.NoContent();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.BadRequest(new { message = ex.Message });
-            }
+            await authService.RevokeAsync(request.RefreshToken, userId);
+            return ApiResults.NoContent("Logout successful.");
         })
         .WithSummary("Revoke the current refresh token (logout from this device).")
         .Produces(StatusCodes.Status204NoContent)
@@ -117,14 +90,14 @@ public static class AuthEndpoints
             if (user is null)
                 return Results.NotFound();
 
-            return Results.Ok(new
+            return ApiResults.Ok(new
             {
                 id        = user.Id,
                 email     = user.Email,
                 firstName = user.FirstName,
                 lastName  = user.LastName,
                 createdAt = user.CreatedAt,
-            });
+            }, "User profile retrieved successfully.");
         })
         .WithSummary("Get the currently authenticated user's profile.")
         .Produces(StatusCodes.Status200OK)

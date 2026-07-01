@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WalletApi.Services;
+using WalletApi.Helpers;
 
 namespace WalletApi.Endpoints;
 
@@ -7,7 +8,7 @@ public static class TransactionsEndpoints
 {
     public static void MapTransactionsEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/transactions")
+        var group = app.MapGroup("/transactions")
                        .WithTags("Transactions")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -19,7 +20,7 @@ public static class TransactionsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.GetByUuidAsync(uuid, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Transaction retrieved successfully.");
         })
         .WithSummary("Get a transaction by UUID.")
         .Produces(StatusCodes.Status200OK)
@@ -32,7 +33,7 @@ public static class TransactionsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.ConfirmAsync(uuid, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Transaction confirmed successfully.");
         })
         .WithSummary("Confirm a pending (unconfirmed) transaction — applies the balance change.")
         .Produces(StatusCodes.Status200OK)
@@ -45,7 +46,7 @@ public static class TransactionsEndpoints
             CancellationToken ct) =>
         {
             var tx = await txSvc.RevertAsync(uuid, ct);
-            return Results.Ok(tx);
+            return ApiResults.Ok(tx, "Transaction reverted successfully.");
         })
         .WithSummary("Revert a confirmed transaction — reverses the balance change.")
         .Produces(StatusCodes.Status200OK)
